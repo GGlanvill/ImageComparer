@@ -36,6 +36,9 @@ class ImageProcessor:
         self.original_image: Image.Image | None = None
         self.modified_image: Image.Image | None = None
 
+        self._original_qimage: QImage | None = None
+        self._modified_qimage: QImage | None = None
+
         self.original_array: np.ndarray | None = None
         self.modified_array: np.ndarray | None = None
 
@@ -89,6 +92,9 @@ class ImageProcessor:
             self.modified_array,
             "RGBA"
         )
+
+        self._original_qimage = None
+        self._modified_qimage = None
 
         self.reset()
 
