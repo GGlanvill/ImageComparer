@@ -100,3 +100,99 @@ class ImageProcessor:
             return
 
         self.modified_image.save(filename)
+
+    # --------------------------------------------------
+
+    def set_rgb(
+        self,
+        red: int,
+        green: int,
+        blue: int,
+    ) -> None:
+        """
+        Update the RGB adjustments and regenerate the modified image.
+        """
+
+        self.red = int(red)
+        self.green = int(green)
+        self.blue = int(blue)
+
+        self._process()
+
+    # --------------------------------------------------
+
+    def _process(self) -> None:
+        """
+        Apply RGB adjustments to the original image.
+
+        The original image is never modified.
+        """
+
+        if self.original_array is None:
+            return
+
+        # Work in a signed integer format so negative values are allowed.
+        rgb = self.original_array[:, :, :3].astype(np.int16)
+
+        rgb[:, :, 0] += self.red
+        rgb[:, :, 1] += self.green
+        rgb[:, :, 2] += self.blue
+
+        np.clip(rgb, 0, 255, out=rgb)
+
+        # Start with a copy so the alpha channel is preserved.
+        result = self.original_array.copy()
+
+        result[:, :, :3] = rgb.astype(np.uint8)
+
+        self.modified_array = result
+
+        self.modified_image = Image.fromarray(
+            result,
+            "RGBA"
+        )
+
+        # Invalidate cached Qt image.
+        self._modified_qimage = None
+
+    # --------------------------------------------------
+
+    def get_original_qimage(self) -> QImage | None:
+
+        if self.original_array is None:
+            return None
+
+        if self._original_qimage is None:
+
+            image = np.ascontiguousarray(self.original_array)
+
+            self._original_qimage = QImage(
+                image.data,
+                image.shape[1],
+                image.shape[0],
+                image.strides[0],
+                QImage.Format_RGBA8888,
+            ).copy()
+
+        return self._original_qimage
+
+    # --------------------------------------------------
+
+    def get_modified_qimage(self) -> QImage | None:
+
+        if self.modified_array is None:
+            return None
+
+        if self._modified_qimage is None:
+
+            image = np.ascontiguousarray(self.modified_array)
+
+            self._modified_qimage = QImage(
+                image.data,
+                image.shape[1],
+                image.shape[0],
+                image.strides[0],
+                QImage.Format_RGBA8888,
+            ).copy()
+
+        return self._modified_qimage
