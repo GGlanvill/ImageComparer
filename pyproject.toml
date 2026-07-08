@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imagecomparer"
+version = "0.1.0"
+description = "Professional image comparison tool"
+authors = [
+    {name = "Geoffrey Glanvill"}
+]
+requires-python = ">=3.12"
+
+dependencies = [
+    "PySide6",
+    "numpy",
+    "Pillow"
+]
+
+[project.scripts]
+imagecomparer = "imagecomparer.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
